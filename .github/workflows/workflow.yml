@@ -1,0 +1,30 @@
+on:
+  push:
+    branches:
+      - main
+env:
+  MAVEN_CLI_OPTS: >-
+    --no-transfer-progress
+    --batch-mode
+    --errors
+    --fail-at-end
+    --show-version
+    -DinstallAtEnd=true
+    -DdeployAtEnd=true
+jobs:
+  build-image:
+    name: Build and push Docker Image
+    runs-on: ubuntu-latest
+    steps:
+      - name: Git clone the repository
+        uses: actions/checkout@v4
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+      - name: Build spring boot image (cloud native buildpacks)
+        id: build-image
+        run: |
+          mvn install $MAVEN_CLI_OPTS -Dmaven.test.skip=true
